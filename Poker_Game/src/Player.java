@@ -16,6 +16,11 @@ public class Player {
 	public void setChips(int i){
 		chips+=i;
 	}
+	//temp
+	public void setHand(Card c1, Card c2){
+		hand.add(c1);
+		hand.add(c2);
+	}
 	public void clearHand(){
 		hand.clear();
 	}
@@ -30,6 +35,7 @@ public class Player {
 	public void compareto(ArrayList<Card> table){
 		ArrayList<Card> newList=new ArrayList<Card>(this.hand);
 		newList.addAll(table);
+		Collections.sort(newList);
 		if(fourofaKind(newList)){
 			System.out.println("four of a kind");
 		}
@@ -53,94 +59,106 @@ public class Player {
 		}
 		
 	}
-	private boolean onePair(ArrayList<Card> hand){
-		int repeats=0;
-		boolean isPair=false;
-		for(int i=0;i<hand.size();i++){
+	public boolean onePair(ArrayList<Card> hand){
+		int repeats=1;
+		boolean bool=false;
+		outer:for(int i=0;i<hand.size();i++){
+			repeats=1;
 			for(int j=1;j<hand.size();j++){
 				if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit())){
-					repeats++;
-					if(repeats==1){
-						isPair=true;
-						String isuit=hand.get(i).getSuit();
-						String ivalue=hand.get(i).getValue();
-						String ksuit=hand.get(j).getSuit();
-						String kvalue=hand.get(j).getValue();
-						System.out.println("--------------------------------------------------------------");
-						System.out.println(isuit+" "+ivalue+" is a pair with "+ksuit+" "+kvalue);
-						break;
+						repeats++;
+						if(repeats==2){
+							bool=true;
+							System.out.println("pair: "+hand.get(i).getSuit()+" "+hand.get(i).getValue()+", "+hand.get(j).getSuit()+" "+hand.get(j).getValue());
+							break outer;
+							}
 						}
-					}
 				}
 			}
-		return isPair;
+		return bool;
+	    
 	}
 	private boolean twoPair(ArrayList<Card> hand){
-		int repeats=0;
+		int repeats=1;
 		int repeatsNo=0;
-		boolean isPair=false;
-		for(int i=0;i<hand.size();i++){
+		ArrayList<Integer> list=new ArrayList<Integer>();
+		boolean bool=false;
+		outer:for(int i=0;i<hand.size();i++){
+			repeats=1;
 			for(int j=1;j<hand.size();j++){
-				if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit())){
+				if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit()) && !list.contains(hand.get(i).getRank())){
 					repeats++;
-					if(repeats==1){
-						repeats=0;
+					if(repeats==2){
+						list.add(hand.get(i).getRank());
+						repeats=1;
+						String fsuit=hand.get(i).getSuit();
+						String fvalue=hand.get(i).getValue();
+						String f2suit=hand.get(j).getSuit();
+						String f2value=hand.get(j).getValue();
+						System.out.println(fsuit+fvalue+f2value);
 						repeatsNo++;
 						if(repeatsNo==2){
-							isPair=true;
-							break;
+							bool=true;
+							String isuit=hand.get(i).getSuit();
+							String ivalue=hand.get(i).getValue();
+							String ksuit=hand.get(j).getSuit();
+							String kvalue=hand.get(j).getValue();
+							System.out.println("--------------------------------------------------------------");
+							System.out.println(isuit+" "+ivalue+" is a pair with "+ksuit+" "+kvalue+" and "+fsuit+" "+fvalue+" is a pair with "+f2suit+" "+f2value);
+							break outer;
 							}
 						}
 					}
 				}
 			}
-		return isPair;
+		return bool;
 	}
-	private boolean threeofaKind(ArrayList<Card> hand){
+	public boolean threeofaKind(ArrayList<Card> hand){
 		int repeats=1;
-		boolean isPair=false;
-		for(int i=0;i<hand.size();i++){
+		boolean bool=false;
+		outer:for(int i=0;i<hand.size();i++){
+			repeats=1;
 			for(int j=1;j<hand.size();j++){
 				if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit())){
-					repeats++;
-					if(repeats==3){
-						isPair=true;
-						String isuit=hand.get(i).getSuit();
-						String ivalue=hand.get(i).getValue();
-						System.out.println("--------------------------------------------------------------");
-						System.out.println(isuit+" "+ivalue+" three of a kind");
-						break;
+						repeats++;
+						if(repeats==3){
+							bool=true;
+							String isuit=hand.get(i).getSuit();
+							String ivalue=hand.get(i).getValue();
+							System.out.println("--------------------------------------------------------------");
+							System.out.println(isuit+" "+ivalue+" three of a kind");
+							break outer;
+							}
 						}
-					}
 				}
 			}
-		return isPair;
+		return bool;
 	}
-	private boolean fourofaKind(ArrayList<Card> hand){
+	public boolean fourofaKind(ArrayList<Card> hand){
 		int repeats=1;
-		boolean isPair=false;
-		for(int i=0;i<hand.size();i++){
+		boolean bool=false;
+		outer:for(int i=0;i<hand.size();i++){
+			repeats=1;
 			for(int j=1;j<hand.size();j++){
 				if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit())){
-					repeats++;
-					if(repeats==4){
-						isPair=true;
-						String isuit=hand.get(i).getSuit();
-						String ivalue=hand.get(i).getValue();
-						System.out.println("--------------------------------------------------------------");
-						System.out.println(isuit+" "+ivalue+" four of a kind");
-						break;
+						repeats++;
+						if(repeats==4){
+							bool=true;
+							String isuit=hand.get(i).getSuit();
+							String ivalue=hand.get(i).getValue();
+							System.out.println(isuit+" "+ivalue+" four of a kind");
+							System.out.println("--------------------------------------------------------------");
+							break outer;
+							}
 						}
-					}
 				}
 			}
-		return isPair;
+		return bool;
 	}
 	private boolean straight(ArrayList<Card> hand){
 		int straight=0;
 		boolean bool=false;
 		int i=0;
-		Collections.sort(hand);
 		for(Card c : hand){
 			System.out.println(c.getRank());
 		}
@@ -160,6 +178,7 @@ public class Player {
 		}
 		return bool;
 	}
+
 	private boolean flush(ArrayList<Card> hand){
 		int clubs=0;
 		int hearts=0;

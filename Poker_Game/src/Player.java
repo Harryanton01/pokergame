@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 
 public class Player {
 	private ArrayList<Card> hand=new ArrayList<Card>();
+	private int pairVal;
 	public int chips;
 	public Player(){
 		hand=new ArrayList<Card>();
@@ -15,11 +16,6 @@ public class Player {
 	}
 	public void setChips(int i){
 		chips+=i;
-	}
-	//temp
-	public void setHand(Card c1, Card c2){
-		hand.add(c1);
-		hand.add(c2);
 	}
 	public void clearHand(){
 		hand.clear();
@@ -36,7 +32,13 @@ public class Player {
 		ArrayList<Card> newList=new ArrayList<Card>(this.hand);
 		newList.addAll(table);
 		Collections.sort(newList);
-		if(fourofaKind(newList)){
+		if(fullHouse(newList)){
+			System.out.println("fullhouse");
+		}
+		else if(straightFlush(newList)){
+			System.out.println("straight flush");
+		}
+		else if(fourofaKind(newList)){
 			System.out.println("four of a kind");
 		}
 		else if(flush(newList)){
@@ -55,7 +57,9 @@ public class Player {
 			System.out.println("one pair");
 		}
 		else{
-			System.out.println("high card");
+			Card hc=getHighcard(newList);
+			Card hhc=getHandHighcard();
+			System.out.println("high card: "+hc.getSuit()+" "+hc.getValue()+" hand high card: "+hhc.getSuit()+" "+hhc.getValue());
 		}
 		
 	}
@@ -116,12 +120,14 @@ public class Player {
 	public boolean threeofaKind(ArrayList<Card> hand){
 		int repeats=1;
 		boolean bool=false;
-		outer:for(int i=0;i<hand.size();i++){
-			repeats=1;
-			for(int j=1;j<hand.size();j++){
-				if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit())){
+		outer:
+			for(int i=0;i<hand.size();i++){
+				repeats=1;
+				for(int j=1;j<hand.size();j++){
+					if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit())){
 						repeats++;
 						if(repeats==3){
+							pairVal=hand.get(i).getRank();
 							bool=true;
 							String isuit=hand.get(i).getSuit();
 							String ivalue=hand.get(i).getValue();
@@ -130,8 +136,8 @@ public class Player {
 							break outer;
 							}
 						}
+					}
 				}
-			}
 		return bool;
 	}
 	public boolean fourofaKind(ArrayList<Card> hand){
@@ -159,13 +165,10 @@ public class Player {
 		int straight=0;
 		boolean bool=false;
 		int i=0;
-		for(Card c : hand){
-			System.out.println(c.getRank());
-		}
 		while(i<hand.size()-1 && !bool){
 			if(hand.get(i).getRank()-hand.get(i+1).getRank()==1){
 				straight++;
-				if(straight==5){
+				if(straight==6){
 					bool=true;
 				}
 				else{
@@ -200,6 +203,38 @@ public class Player {
 				break;
 			}
 		}
-		return(clubs >=5 || hearts >=5 || diamonds >=5 ||spades >=5);
+		return(clubs >=5 || hearts >=5 || diamonds >=5 || spades >=5);
+	}
+	
+	private boolean straightFlush(ArrayList<Card> hand){
+		return flush(hand) && straight(hand);
+	}
+	
+	private boolean fullHouse(ArrayList<Card> hand){
+		int repeats=1;
+		boolean bool=false;
+		if(threeofaKind(hand)){
+			outer:for(int i=0;i<hand.size();i++){
+				repeats=1;
+				for(int j=1;j<hand.size();j++){
+					if(hand.get(i).getRank() == hand.get(j).getRank() && !hand.get(i).getSuit().equals(hand.get(j).getSuit()) && hand.get(i).getRank()!=pairVal){
+							repeats++;
+							if(repeats==2){
+								bool=true;
+								System.out.println("full house");
+								break outer;
+								}
+							}
+					}
+				}
+		}
+		return bool;
+	}
+	private Card getHighcard(ArrayList<Card> hand){
+		return hand.get(0);
+	}
+	private Card getHandHighcard(){
+		Collections.sort(hand);
+		return hand.get(0);
 	}
 }

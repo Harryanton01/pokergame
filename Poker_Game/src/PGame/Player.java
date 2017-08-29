@@ -17,7 +17,17 @@ public class Player {
 		this.cards=cards;
 		this.pname=name;
 		this.hand=new ArrayList<Card>();
-		this.chips=0;
+		this.chips=100;
+	}
+	public boolean bet(int chips){
+		int deduction=this.chips-chips;
+		if(deduction<0){
+			return false;
+		}
+		else{
+			this.chips-=chips;
+			return true;
+		}
 	}
 	public void drawFrom(Deck d){
 		Card no1=d.draw();

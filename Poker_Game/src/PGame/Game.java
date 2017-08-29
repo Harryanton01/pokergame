@@ -35,32 +35,33 @@ public class Game extends Application{
 	private HBox player1Cards = new HBox(20);
 	private HBox tableBox = new HBox(20);
 	private HBox player2Cards = new HBox(20);
+	private Text playerText;
+	private TextField coins;
 	Text text=new Text("Player 1");
+	private int turn;
 	private SimpleBooleanProperty playable = new SimpleBooleanProperty(false);
 	private SimpleBooleanProperty enable = new SimpleBooleanProperty(false);
 	
 	public void startGame(){
-		playable.set(true);
-		enable.set(false);
+		turn=1;
+		//enable.set(false);
 		tablee.clearTable();
-		p1.clearHand();
-		p2=new Player("Luca",player2Cards.getChildren());
 		deck=new Deck();
 		deck.populate();
 		deck.printList();
 		deck.shuffle();
 		p2.drawFrom(deck);
+		p2.drawFrom(deck);
 		p2.displayHand();
 		tablee.drawFrom(deck);
-		delay(100);
 		tablee.drawFrom(deck);
-		delay(100);
 		tablee.drawFrom(deck);
+	}
+	private void drawplayer(){
 		delay(100);
-		tablee.drawFrom(deck);
-		delay(100);
-		tablee.drawFrom(deck);
-
+		p1.drawFrom(deck);
+    	delay(100);
+    	p1.drawFrom(deck);
 	}
 	private void delay(int milliseconds){
 		try {
@@ -71,6 +72,7 @@ public class Game extends Application{
 		}
 	}
 	public void endGame(){
+		turn=1;
 		p1.compareTo(p2);
 	}
 	private Parent createContent() {
@@ -83,10 +85,13 @@ public class Game extends Application{
         table.setFill(Color.GREEN);
         Rectangle buttonBG=new Rectangle(800,160);
         buttonBG.setFill(Color.DARKRED);
-        
+       
         VBox leftVBox = new VBox(50);
         VBox bottomVBox=new VBox(100);
+        turn=0;
+     
         p1=new Player("Harry", player1Cards.getChildren());
+        p2=new Player("Luca",player2Cards.getChildren());
         tablee=new Table(tableBox.getChildren());
         leftVBox.setAlignment(Pos.TOP_CENTER);
         bottomVBox.setAlignment(Pos.CENTER);
@@ -95,43 +100,86 @@ public class Game extends Application{
         bottomVBox.getChildren().addAll(tableBox);
         Button betBT=new Button("BET");
         Button startBT=new Button("START");
-        Button drawBT=new Button("DRAW");
-        Button restartBT=new Button("RESTART");
+        Button restartBT=new Button("FOLD");
         HBox buttonsBox=new HBox (10);
-        buttonsBox.getChildren().addAll(startBT, drawBT, betBT);
+        playerText=new Text(p1.getName()+" chips: "+p1.chips);
+        coins=new TextField();
+        VBox chipt=new VBox(5);
+        chipt.setAlignment(Pos.CENTER);
+        chipt.getChildren().addAll(playerText, coins, betBT);
+        chipt.setPadding(new Insets(0, -80, 0, 40));
+        buttonsBox.getChildren().addAll(startBT, restartBT, chipt);
         lefth.setPadding(new Insets(0, 0, 0, 40));
         lefth.getChildren().addAll(buttonsBox,player1Cards);
         buttonBG.setArcHeight(70);
         buttonBG.setArcWidth(70);
         buttonsBox.setAlignment(Pos.CENTER);
-        restartBT.disableProperty().bind(playable);
-        startBT.disableProperty().bind(playable);
-        drawBT.disableProperty().bind(enable);
-        betBT.disableProperty().bind(playable.not());
+       // restartBT.disableProperty().bind(playable);
+       // startBT.disableProperty().bind(playable);
+        //drawBT.disableProperty().bind(enable);
+        //betBT.disableProperty().bind(playable.not());
         
-        drawBT.setOnAction(event->{
-        	p1.drawFrom(deck);
-        	delay(100);
-        	p1.drawFrom(deck);
-        	p2.evaluatehandWith(tablee);
-        	enable.set(true);
-        	text.textProperty().bind(new SimpleStringProperty(p1.evaluatehandWith(tablee)));
-        });
         
         startBT.setOnAction(event->{
-        	startGame();
+        		playerText.setText(p1.getName()+" chips: "+p1.chips);
+        		//playable.set(true);
+        		
+        		startGame();
+        		p2.evaluatehandWith(tablee);
+        		drawplayer();
+            	enable.set(true);
+    			
         });
         betBT.setOnAction(event->{
-        	playable.set(false);
-        	tablee.clearTable();
-        	endGame();
-
+        	int chips=0;
+        	try{
+        		chips=Integer.parseInt(coins.getText());
+        		betb(chips);
+        	}
+        	catch(Exception e){
+        		playerText.setText("Please input a valid number");
+        	}
+        
         });
         rootLayout.getChildren().addAll(new StackPane(table, leftVBox, bottomVBox),new StackPane(buttonBG,lefth));
         pane.getChildren().addAll(background, rootLayout);
         
 
         return pane;
+	}
+	private void betb(int chips){
+		if(p1.bet(chips)&&p2.bet(chips)){
+    		if(turn==4){
+    			turn=1;
+            	p1.evaluatehandWith(tablee);
+            	p2.evaluatehandWith(tablee);
+            	if(p1.compareTo(p2)){
+            		playerText.setText("winner is: "+p1.getName());
+            		p1.setChips(tablee.pot);
+            	}
+            	else{
+            		playerText.setText("winner is: "+p2.getName());
+            		p2.setChips(tablee.pot);
+            	}
+            	//delay(2000);
+            	tablee.clearPot();
+            	tablee.clearTable();
+            	p1.clearHand();
+            	p2.clearHand();
+            	
+            	playerText.setText(p1.getName()+" chips: "+p1.chips);
+    		}
+    		else{
+    		turn++;
+    		tablee.drawFrom(deck);
+    		tablee.addtoPot(chips*2);
+    		playerText.setText(p1.getName()+" chips: "+p1.chips);
+    		}
+		}
+		else{
+			playerText.setText("not enough chips");
+		}
+
 	}
 	   @Override
 	    public void start(Stage primaryStage) throws Exception {

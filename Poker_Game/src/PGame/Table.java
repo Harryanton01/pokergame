@@ -8,7 +8,7 @@ import javafx.scene.Node;
 public class Table {
 	public ArrayList<Card> hand=new ArrayList<Card>();
 	private ObservableList<Node> cards;
-	public int pot;
+	private int pot;
 	public Table(ObservableList<Node> cards){
 		this.hand=new ArrayList<Card>();
 		this.cards=cards;
@@ -19,6 +19,9 @@ public class Table {
 	}
 	public void clearPot(){
 		pot=0;
+	}
+	public int getPot() {
+		return pot;
 	}
 	public void drawFrom(Deck d){
 		Card no1=d.draw();

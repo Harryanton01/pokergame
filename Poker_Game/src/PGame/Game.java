@@ -1,22 +1,14 @@
 package PGame;
 
-import java.io.File;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import javafx.application.Application;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -25,7 +17,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 public class Game extends Application{
 	private Player player;
@@ -39,10 +30,9 @@ public class Game extends Application{
 	private Text playerText = new Text("");
 	private TextField coinField;
 	Text text;
-	private int turn;
 	
-	private SimpleBooleanProperty playable = new SimpleBooleanProperty(false);
-	private SimpleBooleanProperty enable = new SimpleBooleanProperty(false);
+	private SimpleBooleanProperty start = new SimpleBooleanProperty(false);
+	private SimpleBooleanProperty game = new SimpleBooleanProperty(false);
 	
 	public void startGame(){
 		deck=new Deck();
@@ -53,15 +43,19 @@ public class Game extends Application{
 		playerDraw();
 		opponent.drawFrom(deck);
 		opponent.drawFrom(deck);
+		opponentCards.setVisible(false);
+		game.set(false);
+		start.set(true);
 	}
 	private void nextGame() {
-		delay(5000);
 		deck=new Deck();
 		table=new Table(tableCards.getChildren());
 		playerText.setText(player.getName()+": "+player.chips);
 		playerDraw();
 		opponent.drawFrom(deck);
 		opponent.drawFrom(deck);
+		opponentCards.setVisible(false);
+		game.set(false);
 	}
 	private void playerDraw(){
 		delay(100);
@@ -77,13 +71,11 @@ public class Game extends Application{
 		try {
 			Thread.sleep(milliseconds);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	public void endGame(){
-		turn=1;
-		int pot=table.pot;
+	private void evaluateWinner() {
+		int pot=table.getPot();
 		opponent.displayHand();
 		player.evaluatehandWith(table);
 		opponent.evaluatehandWith(table);
@@ -93,12 +85,16 @@ public class Game extends Application{
 		else {
 			opponent.addChips(pot);
 		}
+	}
+	private void fold() {
+		int pot=table.getPot();
+		opponent.addChips(pot);
+	}
+	private void endGame(){
 		table.clearPot();
 		table.clearTable();
 		player.clearHand();
-		opponent.displayHand();
 		opponent.clearHand();
-		
 		nextGame();
 	}
 	private Parent createContent() {
@@ -125,10 +121,18 @@ public class Game extends Application{
         tableVBox.getChildren().addAll(tableCards);
         
         Button betBT=new Button("BET");
+        betBT.disableProperty().bind(game);
         betBT.setScaleX(1.2);
         betBT.setScaleY(1.2);
+        
         Button startBT=new Button("START");
-        Button restartBT=new Button("FOLD");
+        startBT.disableProperty().bind(start);
+        
+        Button foldBT=new Button("FOLD");
+        foldBT.disableProperty().bind(game);
+        
+        Button evaluateBT=new Button("EVALUATE");
+        evaluateBT.disableProperty().bind(game.not());
         
         VBox betSection=new VBox(15);
         coinField=new TextField("10");
@@ -138,48 +142,62 @@ public class Game extends Application{
         
         HBox buttonsBox=new HBox (10);
         buttonsBox.setAlignment(Pos.CENTER);
-        buttonsBox.getChildren().addAll(startBT, restartBT, betSection);
+        buttonsBox.getChildren().addAll(startBT, foldBT, evaluateBT, betSection);
         
         HBox bottomHBox=new HBox(5);
         bottomHBox.setPadding(new Insets(0, 0, 0, 40));
         bottomHBox.getChildren().addAll(buttonsBox,playerCards);
         
-       // restartBT.disableProperty().bind(playable);
-        
         startBT.setOnAction(event->{
-        	startGame();	
+        	startGame();
         });
+        
         betBT.setOnAction(event->{
-        	betb();
-        
+        	bet();
         });
         
-        rootLayout.getChildren().addAll(new StackPane(tableBG,handVBox, tableVBox),new StackPane(buttonBG,bottomHBox));
+        evaluateBT.setOnAction(event->{
+        	evaluateWinner();
+        	endGame();	
+        });
+        
+        foldBT.setOnAction(event->{
+        	fold();
+        	endGame();	
+        });
+        
+        rootLayout.getChildren().addAll(new StackPane(tableBG,opponentCards,handVBox, tableVBox),new StackPane(buttonBG,bottomHBox));
         pane.getChildren().addAll(background, rootLayout);
         return pane;
 	}
-	private void betb(){
+	private void bet(){
 		int chips=0;
 		try {
 			chips=Integer.parseInt(coinField.getText());
 			if(player.hasChips(chips) && opponent.hasChips(chips)) {
-				if(table.hand.size()==0) {
-					turn++;
+				if(table.hand.size()==4) {
 					table.addtoPot(chips*2);
-					playerText.setText(player.getName()+": "+player.chips+" || chips in pot: "+table.pot);
+					playerText.setText(player.getName()+": "+player.chips+" || chips in pot: "+table.getPot());
 					tableDraw();
-					tableDraw();
-					tableDraw();
+					for(Card c:opponent.hand) {
+						delay(100);
+						c.animateCard();
+					}
+					opponentCards.setVisible(true);
+					game.set(true);
 				}
-				else if(table.hand.size()==5) {
-					endGame();
+				else if(table.hand.size()==0) {				
+					table.addtoPot(chips*2);
+					playerText.setText(player.getName()+": "+player.chips+" || chips in pot: "+table.getPot());
+					tableDraw();
+					tableDraw();
+					tableDraw();
+					
 				}
 				else {
-					turn++;
 					table.addtoPot(chips*2);
-					playerText.setText(player.getName()+": "+player.chips+" || chips in pot: "+table.pot);
+					playerText.setText(player.getName()+": "+player.chips+" || chips in pot: "+table.getPot());
 					tableDraw();
-					System.out.println(turn);
 				}
 			}
 			else{

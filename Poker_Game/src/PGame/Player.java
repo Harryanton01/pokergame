@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.collections.ObservableList;
 
 public class Player {
-	private ArrayList<Card> hand=new ArrayList<Card>();
+	public ArrayList<Card> hand=new ArrayList<Card>();
 	private ObservableList<Node> cards;
 	private ArrayList<Card> handrank=new ArrayList<Card>();
 	private String pname;

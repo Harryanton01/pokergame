@@ -1,26 +1,13 @@
 package PGame;
-import java.io.File;
-import java.util.Collections;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.ParallelTransition;
-import javafx.animation.Timeline;
+import java.io.File;
 import javafx.animation.TranslateTransition;
-import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
-import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
-
-import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 
 public class Card extends Parent implements Comparable<Card>{
 	enum Suit{

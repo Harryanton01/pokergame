@@ -19,7 +19,7 @@ public class Player {
 		this.hand=new ArrayList<Card>();
 		this.chips=100;
 	}
-	public boolean bet(int chips){
+	public boolean hasChips(int chips){
 		int deduction=this.chips-chips;
 		if(deduction<0){
 			return false;
@@ -35,7 +35,7 @@ public class Player {
 		cards.add(no1);
 		System.out.println(no1.toString());
 	}
-	public void setChips(int i){
+	public void addChips(int i){
 		chips+=i;
 	}
 	public void clearHand(){
@@ -46,7 +46,7 @@ public class Player {
 		System.out.println("--------------------------------------------------------------");
 		System.out.println(pname);
 		System.out.println("HAND");
-		System.out.println("First card: "+hand.get(0).rank+" of "+hand.get(0).suit+" rank: "+hand.get(0).value);
+		System.out.println("Cards: "+hand.get(0).toString()+" "+hand.get(1).toString());
 		System.out.println("--------------------------------------------------------------");
 	}
 	public String evaluatehandWith(Table table){

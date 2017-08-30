@@ -33,5 +33,6 @@ public class Table {
 	public void clearTable(){
 		cards.clear();
 		hand.clear();
+		System.out.println("table size: "+hand.size());
 	}
 }

@@ -10,6 +10,8 @@ ArrayList<Card> deck_array=new ArrayList<Card>();
 
 public Deck(){
 	deck_array=new ArrayList<Card>();
+	this.populate();
+	this.shuffle();
 }
 public final void populate(){
 	deck_array.clear();

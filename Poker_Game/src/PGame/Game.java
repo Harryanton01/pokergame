@@ -75,6 +75,9 @@ public class Game extends Application{
 		}
 	}
 	private void evaluateWinner() {
+		while(table.hand.size()<5) {
+			tableDraw();
+		}
 		int pot=table.getPot();
 		opponent.displayHand();
 		player.evaluatehandWith(table);
@@ -96,6 +99,9 @@ public class Game extends Application{
 		player.clearHand();
 		opponent.clearHand();
 		nextGame();
+	}
+	private boolean haslessChips() {
+		return player.chips<opponent.chips;
 	}
 	private Parent createContent() {
         Pane pane = new Pane();
@@ -201,7 +207,21 @@ public class Game extends Application{
 				}
 			}
 			else{
-				playerText.setText("not enough chips");
+				if(haslessChips()){
+					int p=player.chips;
+					table.addtoPot(p*2);
+					player.addChips(-p);
+					opponent.addChips(-p);
+					playerText.setText("ALL IN "+player.getName()+" "+player.chips);
+				}
+				else {
+					int o=opponent.chips;
+					table.addtoPot(o*2);
+					player.addChips(-o);
+					opponent.addChips(-o);
+					playerText.setText("ALL IN "+opponent.getName()+" "+opponent.chips);
+				}
+				evaluateWinner();
 			}
 		}
 		catch(Exception e){

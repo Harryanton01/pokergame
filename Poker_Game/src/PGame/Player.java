@@ -331,9 +331,9 @@ public class Player {
 	private Card gethighcard(){
 		return highcard;
 	}
-	private Card gethandhighcard(){
+	/*private Card gethandhighcard(){
 		return handhighcard;
-	}
+	}*/
 	private void findHandHighcard(){
 		Collections.sort(hand);
 		handhighcard=hand.get(0);
